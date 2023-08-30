@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% extends 'base.html' %}{% block content %}
+    <style>
+      body {
+        background-color: #f6f9fb;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Display three cards per row */
+        gap: 1rem;
+        padding: 2rem;
+      }
+
+      .card {
+        display: flex;
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        background-color: white;
+      }
+
+      .canvas-container {
+        flex: 1;
+        padding: 1rem;
+      }
+
+      .text-container {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 1rem;
+        font-size: large;
+      }
+
+      .text-container h3 {
+        font-size: xx-large;
+        margin-bottom: 1rem;
+      }
+    </style>
+    <!-- ... your head content ... -->
+  </head>
+  <body>
+    <section class="py-5">
+      <div class="container" id="dataContainer">
+        <!-- Containers will be dynamically created here -->
+      </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      function createPieChart(containerElement, ontime, latecomers, absents) {
+        var ctx = containerElement.querySelector(".pieChart");
+        new Chart(ctx, {
+          type: "pie",
+          options: {
+            legend: {
+              position: "left",
+              labels: {
+                boxWidth: 10,
+                fontStyle: "italic",
+                fontColor: "#aaa",
+                usePointStyle: true,
+              },
+            },
+          },
+          data: {
+            labels: ["On-Time", "Latecomers", "Absents"],
+            datasets: [
+              {
+                data: [ontime, latecomers, absents],
+                borderWidth: 0,
+                backgroundColor: ["#44b2d7", "#71d1f2", "#e0e0e0"],
+                hoverBackgroundColor: ["#44b2d7", "#71d1f2", "#e0e0e0"],
+              },
+            ],
+          },
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const dataContainer = document.getElementById("dataContainer");
+        const parsedData = JSON.parse("{{ classroom_data_json|escapejs }}");
+
+        parsedData.forEach((data) => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          // Create a canvas container
+          const canvasContainer = document.createElement("div");
+          canvasContainer.className = "canvas-container";
+
+          // Create a canvas element for the pie chart
+          const canvas = document.createElement("canvas");
+          canvas.className = "pieChart";
+          canvasContainer.appendChild(canvas);
+
+          card.appendChild(canvasContainer);
+
+          const textContainer = document.createElement("div");
+          textContainer.className = "text-container";
+          if (data.name == "All-Classes") {
+            card.style.backgroundColor = "black";
+            textContainer.style.color = "white";
+          }
+
+          const h3 = document.createElement("h3");
+          h3.className = "fw-bold";
+          h3.textContent = data.name;
+
+          const presentsSpan = document.createElement("span");
+          presentsSpan.className = "presents";
+          presentsSpan.textContent = `${data.presents} / ${data.strength}`;
+
+          h3.appendChild(document.createElement("br"));
+          h3.appendChild(presentsSpan);
+          textContainer.appendChild(h3);
+
+          card.addEventListener("click", function () {
+            // Extract year, specialization, and section from the container's name
+            const [year, specialization, section] = data.name.split("-");
+
+            // Construct the URL with filters
+            let latecomersURL;
+            if (data.name === "All-Classes") {
+              latecomersURL = "/latecomers"; // Modify this URL accordingly
+            } else {
+              latecomersURL = `/latecomers?year=${year}&specialization=${specialization}&section=${section}`;
+            }
+
+            // Redirect to the appropriate page
+            window.location.href = latecomersURL;
+          });
+          card.appendChild(textContainer);
+          dataContainer.appendChild(card);
+
+          // Call the function to create the pie chart
+          createPieChart(card, data.ontime, data.latecomers, data.absents);
+        });
+      });
+    </script>
+  </body>
+  {% endblock %}
+</html>

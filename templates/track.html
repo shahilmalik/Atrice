@@ -1,0 +1,138 @@
+{% extends 'base.html' %} {% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Track Page</title>
+    <style>
+      .track-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f2f2f2;
+        border-radius: 10px;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .search-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      #rollNumber {
+        padding: 8px;
+        border: none;
+        border-radius: 5px;
+        margin-right: 10px;
+      }
+
+      #searchButton {
+        padding: 8px 15px;
+        background-color: #0074d9;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #searchButton:hover {
+        background-color: #001f3f;
+      }
+
+      .track-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .track-table th,
+      .track-table td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+      .footer {
+        background-color: #f2f2f2;
+        padding: 20px;
+        text-align: center;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+
+      .footer p {
+        margin: 0;
+        font-size: 18px;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="content">
+      <div class="track-container">
+        <div class="search-container">
+          <input type="text" id="rollNumber" placeholder="Enter Roll Number" />
+          <button id="searchButton">Search</button>
+        </div>
+        <table class="track-table">
+          <thead>
+            <tr>
+              <th>Roll No</th>
+              <th>Name</th>
+              <th>Year</th>
+              <th>Branch</th>
+              <th>Section</th>
+              <th>Entry Time</th>
+              <th>Last Spotted</th>
+            </tr>
+            <tr>
+              <img src="" />
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody">
+            <!-- Search results will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchButton = document.getElementById("searchButton");
+        const resultsTableBody = document.getElementById("resultsTableBody");
+        const rollNumberInput = document.getElementById("rollNumber");
+
+        searchButton.addEventListener("click", function () {
+          const studentsData = JSON.parse("{{ students_json|escapejs }}");
+          const enteredRollNumber = rollNumberInput.value.trim();
+
+          // Clear previous results
+          resultsTableBody.innerHTML = "";
+
+          // Filter and populate the table with matching results
+          studentsData.forEach((student) => {
+            if (student.register_number === enteredRollNumber) {
+              resultsTableBody.innerHTML += `
+              <tr>
+                  <td>${student.register_number}</td>
+                  <td>${student.name}</td>
+                  <td>${student.year}</td>
+                  <td>${student.specialization}</td>
+                  <td>${student.section}</td>
+                  <td>${student.timestamp}</td>
+                  <td>${student.lastspotted}</td>
+              </tr>
+          `;
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+  <footer class="footer">
+    <p>&copy; 2023 Shahil Malik. All rights reserved.</p>
+  </footer>
+</html>
+{% endblock %}

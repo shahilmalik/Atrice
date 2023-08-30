@@ -1,0 +1,318 @@
+{% extends 'base.html' %} {% block content %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log</title>
+    <style>
+
+      .content {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
+      .filter-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .filter-title {
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .filter-checkbox {
+        margin-right: 5px;
+      }
+
+      .latecomers-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .latecomers-table th,
+      .latecomers-table td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="content">
+      <div class="latecomers-container">
+        <div class="filters">
+          <div class="filter-group">
+            <div class="filter-title">Year:</div>
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="I"
+                checked
+              />
+              I</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="II"
+                checked
+              />
+              II</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="III"
+                checked
+              />
+              III</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="IV"
+                checked
+              />
+              IV</label
+            >
+          </div>
+          <div class="filter-group">
+            <div class="filter-title">Specialization:</div>
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="CSE"
+                checked
+              />
+              CSE</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="AIML"
+                checked
+              />
+              AIML</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="BDA"
+                checked
+              />
+              BDA</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="CSBS"
+                checked
+              />
+              CSBS</label
+            >
+          </div>
+          <div class="filter-group">
+            <div class="filter-title">Section:</div>
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="A"
+                checked
+              />
+              A</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="B"
+                checked
+              />
+              B</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="C"
+                checked
+              />
+              C</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="D"
+                checked
+              />
+              D</label
+            >
+          </div>
+          <div class="filter-group">
+            <div class="filter-title">Absentees:</div>
+<label><input type="checkbox" class="filter-checkbox" id="showAbsentCheckbox" ></label>
+            <div class="filter-title">Latecomers:</div>
+<label><input type="checkbox" class="filter-checkbox" id="showLatecomersCheckbox" ></label>
+<form style="margin-left: auto;" action="{% url 'latecomers' %}">
+  <label style="font-weight: bold;" for="appt">Select a time:</label>
+  <input type="time" id="appt" name="appt">
+</form>
+
+</body>
+</html>
+</div>
+        <table class="latecomers-table">
+
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Roll No</th>
+              <th>Name</th>
+              <th>Year</th>
+              <th>Specialization</th>
+              <th>Section</th>
+              <th>Entry Time</th>
+            </tr>
+          </thead>
+          <tbody id="latecomersTableBody">
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.querySelectorAll(".filter-checkbox");
+    const latecomersTableBody = document.getElementById("latecomersTableBody");
+    const showAbsentCheckbox = document.getElementById("showAbsentCheckbox");
+    const showLatecomersCheckbox = document.getElementById("showLatecomersCheckbox");
+    const selectedTimeInput = document.getElementById("appt");
+    selectedTimeInput.value = "08:10";
+
+
+function updateTable() {
+  const selectedFilters = Array.from(checkboxes)
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+
+  latecomersTableBody.innerHTML = "";
+
+  const studentsJson = "{{ students_json|escapejs }}";
+  const students = JSON.parse(studentsJson);
+
+  students.sort((a, b) => a.register_number.localeCompare(b.register_number, undefined, {numeric: true}));
+
+  students.forEach((student, index) => {
+    const studentData = {
+      sno: index + 1,
+      rollNo: student.register_number,
+      name: student.name,
+      year: student.year,
+      specialization: student.specialization,
+      section: student.section,
+      timestamp: student.timestamp,
+    };
+  
+    const selectedTime = selectedTimeInput.value;
+  
+    console.log("selec :",selectedTime)
+    const lateThreshold = new Date("1970-01-01 " + selectedTime);
+    const timestampDate = new Date("1970-01-01 " + studentData.timestamp);
+    console.log("threshold :",lateThreshold)
+    console.log("timestampDate :",timestampDate)
+    const isLate = timestampDate > lateThreshold;
+    const isAbsent = studentData.timestamp === "ABSENT";
+    const fontColor = isAbsent ? "red" : (isLate ? "gray" : "black");
+
+    const showRow =
+      (!showAbsentCheckbox.checked && !showLatecomersCheckbox.checked) ||
+      (showAbsentCheckbox.checked && isAbsent) ||
+      (showLatecomersCheckbox.checked && isLate);
+
+    const matchesFilters =
+      selectedFilters.includes(studentData.year) &&
+      selectedFilters.includes(studentData.specialization) &&
+      selectedFilters.includes(studentData.section);
+
+    if (showRow && matchesFilters) {
+      const row = createRow(studentData, fontColor);
+      latecomersTableBody.appendChild(row);
+    }
+  });
+}
+
+
+
+
+    function createRow(data, color) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.sno}</td>
+        <td>${data.rollNo}</td>
+        <td style="color: ${color};">${data.name}</td>
+        <td>${data.year}</td>
+        <td>${data.specialization}</td>
+        <td>${data.section}</td>
+        <td>${data.timestamp}</td>
+      `;
+      return row;
+    }
+
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", function () {
+        if (checkbox === showAbsentCheckbox && checkbox.checked) {
+          showLatecomersCheckbox.checked = false;
+        } else if (checkbox === showLatecomersCheckbox && checkbox.checked) {
+          showAbsentCheckbox.checked = false;
+        }
+        updateTable();
+      });
+    });
+
+    showAbsentCheckbox.addEventListener("change", updateTable);
+    
+    showLatecomersCheckbox.addEventListener("change", updateTable);
+    
+    selectedTimeInput.addEventListener("input", updateTable);
+    const urlSearchParams = new URLSearchParams(window.location.search);
+const yearFilter = urlSearchParams.get("year");
+const specializationFilter = urlSearchParams.get("specialization");
+const sectionFilter = urlSearchParams.get("section");
+
+function selectCheckboxes(filters, checkboxes) {
+  checkboxes.forEach((checkbox) => {
+    checkbox.checked = filters.includes(checkbox.value);
+  });
+}
+
+if (!yearFilter && !specializationFilter && !sectionFilter) {
+    checkboxes.forEach((checkbox) => {
+      if (checkbox !== showLatecomersCheckbox && checkbox !== showAbsentCheckbox) {
+        checkbox.checked = true; 
+      }
+    });
+  } else {
+  selectCheckboxes([yearFilter, specializationFilter, sectionFilter], checkboxes);
+}
+    updateTable();
+  });
+</script>
+
+  </body>
+</html>
+
+{% endblock %}

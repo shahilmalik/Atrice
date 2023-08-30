@@ -1,0 +1,397 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/manage.css' %}"
+    />
+    <title>Manage</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <header class="header">
+      <nav class="navbar">
+        <div class="logo">
+          <a href="/">Atrice</a>
+        </div>
+        <ul class="nav-links">
+          <li><a href="/dashboard">Dashboard</a></li>
+          <li><a href="/track">Track</a></li>
+          <li><a href="/latecomers">Latecomers</a></li>
+          <li>
+            <a href="/enroll" target="_blank"
+              ><button id="enrollButton" class="enroll-button">
+                Enroll
+              </button></a
+            >
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <main class="content">
+      <div class="latecomers-container">
+        <div class="filters">
+          <div class="filter-group">
+            <div class="filter-title">Year:</div>
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="I"
+                checked
+              />
+              I</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="II"
+                checked
+              />
+              II</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="III"
+                checked
+              />
+              III</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="IV"
+                checked
+              />
+              IV</label
+            >
+          </div>
+          <div class="filter-group">
+            <div class="filter-title">Specialization:</div>
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="CSE"
+                checked
+              />
+              CSE</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="AIML"
+                checked
+              />
+              AIML</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="BDA"
+                checked
+              />
+              BDA</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="CSBS"
+                checked
+              />
+              CSBS</label
+            >
+          </div>
+          <div class="filter-group">
+            <div class="filter-title">Section:</div>
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="A"
+                checked
+              />
+              A</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="B"
+                checked
+              />
+              B</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="C"
+                checked
+              />
+              C</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                class="filter-checkbox"
+                value="D"
+                checked
+              />
+              D</label
+            >
+            <div
+              class="camera-dropdown-container"
+              style="
+                margin-left: auto;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 10px;
+              "
+            >
+              <form method="post" action="{% url 'demo' %}">
+                {% csrf_token %}
+                <label style="font-weight: bold" for="num_cameras"
+                  >Number of Cameras:</label
+                >
+                <select name="num_cameras" id="num_cameras">
+                  <option value="1">1 Camera</option>
+                  <option value="2">2 Cameras</option>
+                  <option value="3">3 Cameras</option>
+                  <option value="4">4 Cameras</option>
+                </select>
+                <button
+                  style="
+                    background-color: rgb(18, 194, 106);
+                    color: aliceblue;
+                    cursor: pointer;
+                    border-radius: 3px;
+                  "
+                  type="button"
+                  id="activateButton"
+                >
+                  Activate
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <table class="latecomers-table">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Roll No</th>
+              <th>Name</th>
+              <th>Year</th>
+              <th>Specialization</th>
+              <th>Section</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="latecomersTableBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </body>
+
+  <script>
+    function confirmDelete(event) {
+      const deleteButton = event.target;
+      const studentId = deleteButton.getAttribute("data-student-id");
+
+      const confirmed = confirm(
+        "Are you sure you want to delete this student?"
+      );
+      if (confirmed) {
+        const csrfToken = document.querySelector(
+          "[name=csrfmiddlewaretoken]"
+        ).value;
+
+        fetch(`/delete-student/${studentId}/`, {
+          method: "DELETE",
+          headers: {
+            "X-CSRFToken": csrfToken,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              //alert(data.message);
+              // Remove the deleted row from the table
+              const deletedRow = deleteButton.closest("tr");
+              deletedRow.remove();
+
+              // You can also update the row numbers after deletion
+              updateRowNumbers();
+              updateTable();
+            }
+          })
+          .catch((error) => {
+            console.error("Error deleting student:", error);
+          });
+      }
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+      const activateButton = document.getElementById("activateButton");
+      let isRunning = localStorage.getItem("isRunning") === "true";
+      let stopRequested = false; // Define stopRequested globally
+
+      activateButton.addEventListener("click", function () {
+        if (!isRunning) {
+          isRunning = true;
+          localStorage.setItem("isRunning", "true");
+          activateButton.textContent = "Stop";
+          activateButton.style.backgroundColor = "red";
+          startLoop();
+        } else {
+          isRunning = false;
+          localStorage.setItem("isRunning", "false");
+          activateButton.textContent = "Activate";
+          activateButton.style.backgroundColor = "rgb(18, 194, 106)";
+          const csrfToken = $("[name=csrfmiddlewaretoken]").val();
+          stopLoop(csrfToken); // Pass csrfToken to stopLoop function
+        }
+      });
+
+      function startLoop() {
+        const numCamerasSelect = document.getElementById("num_cameras");
+        const selectedNumCameras = numCamerasSelect.value;
+
+        $.ajax({
+          type: "POST",
+          url: "{% url 'demo' %}",
+          data: { num_cameras: selectedNumCameras },
+          success: function (response) {
+            console.log("Loop started successfully.");
+            updateTable();
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.error("Error starting the loop:", errorThrown);
+          },
+        });
+      }
+
+      function stopLoop(csrfToken) {
+        stopRequested = true;
+        $.ajax({
+          type: "POST",
+          url: "{% url 'stop_demo_loop' %}",
+          headers: { "X-CSRFToken": csrfToken },
+          success: function (response) {
+            console.log("Loop stopping request sent.");
+            updateTable();
+          },
+          error: function (xhr, textStatus, errorThrown) {
+            console.error("Error sending stop request:", errorThrown);
+          },
+        });
+      }
+
+      // Periodically check the stopRequested flag and update the UI
+      function checkStopRequested() {
+        if (isRunning) {
+          activateButton.textContent = "Stop";
+          activateButton.style.backgroundColor = "red";
+        } else {
+          activateButton.textContent = "Activate";
+          activateButton.style.backgroundColor = "rgb(18, 194, 106)";
+        }
+        setTimeout(checkStopRequested, 1000); // Check every second
+      }
+
+      checkStopRequested();
+      const latecomersTableBody = document.getElementById(
+        "latecomersTableBody"
+      );
+
+      function updateTable() {
+        const checkboxes = document.querySelectorAll(".filter-checkbox");
+        const selectedFilters = Array.from(checkboxes)
+          .filter((checkbox) => checkbox.checked)
+          .map((checkbox) => checkbox.value);
+
+        latecomersTableBody.innerHTML = "";
+
+        const studentsJson = "{{ students_json|escapejs }}";
+        const students = JSON.parse(studentsJson);
+
+        students.forEach((student, index) => {
+          const studentData = {
+            sno: index + 1,
+            rollNo: student.register_number,
+            name: student.name,
+            year: student.year,
+            specialization: student.specialization,
+            section: student.section,
+            imageUrl: student.image_url,
+          };
+
+          if (
+            selectedFilters.includes(studentData.year) &&
+            selectedFilters.includes(studentData.specialization) &&
+            selectedFilters.includes(studentData.section)
+          ) {
+            latecomersTableBody.innerHTML += `
+        <tr>
+          <td>${studentData.sno}</td>
+          <td>${studentData.rollNo}</td>
+          <td>${studentData.name}</td>
+          <td>${studentData.year}</td>
+          <td>${studentData.specialization}</td>
+          <td>${studentData.section}</td>
+          <td>
+            <a href="${studentData.imageUrl}" target='_blank'>
+              <button style="
+                    background-color: #71d1f0;
+                    color: white;"
+                    onmouseover="this.style.backgroundColor='#44b2d7';"
+                    onmouseout="this.style.backgroundColor='#71d1f0';"
+                  type="submit"class="view-button">View</button>
+            </a>
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <button type="button" style="
+    background-color: #e0e0e0;
+    color: white;" class="delete-button" data-student-id="${studentData.rollNo}"
+    onmouseover="this.style.backgroundColor='black';"
+    onmouseout="this.style.backgroundColor='#e0e0e0';"
+    onclick="confirmDelete(event)">Delete</button>
+
+          </td>
+        </tr>
+      `;
+          }
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const checkboxes = document.querySelectorAll(".filter-checkbox");
+
+        checkboxes.forEach((checkbox) => {
+          checkbox.addEventListener("change", updateTable);
+        });
+
+        updateTable();
+        latecomersTableBody.addEventListener("click", function (event) {
+          if (event.target.classList.contains("delete-button")) {
+            confirmDelete(event);
+          }
+        });
+      });
+
+      updateTable();
+    });
+  </script>
+</html>

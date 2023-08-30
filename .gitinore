@@ -1,0 +1,8 @@
+../.vscode/
+../pyvenv.cfg/
+pages/migrations/
+pages/acti_thread.py
+pages/dummy.env
+templates/latecomers2.html
+templates/manage2.html
+templates/test.html
