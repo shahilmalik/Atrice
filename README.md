@@ -26,7 +26,7 @@ Atrice is a Django-based application that performs real-time face recognition on
 9. The cameras can be activated and deactivated from the manage page.
 
 ## Directory Structure
-
+```
 Atrice/
 ├── manage.py
 ├── autolog/
@@ -60,7 +60,8 @@ Atrice/
 │   ├── track.html
 │   ├── latecomers.html
 │   ├── enroll.html
-│   └── manage.html
+│   └── manage.html```
+
 
 
 
