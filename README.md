@@ -54,13 +54,13 @@ Atrice/
 │   │   └──  manage.css
 │   ├── js/
 │   │   └── manage.js
-├── templates/
-│   ├── base.html
-│   ├── dashboard.html
-│   ├── track.html
-│   ├── latecomers.html
-│   ├── enroll.html
-│   └── manage.html
+└── templates/
+    ├── base.html
+    ├── dashboard.html
+    ├── track.html
+    ├── latecomers.html
+    ├── enroll.html
+    └── manage.html
 ```
 
 
