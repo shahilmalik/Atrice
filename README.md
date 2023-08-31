@@ -60,7 +60,8 @@ Atrice/
 │   ├── track.html
 │   ├── latecomers.html
 │   ├── enroll.html
-│   └── manage.html```
+│   └── manage.html
+```
 
 
 
