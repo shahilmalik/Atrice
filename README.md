@@ -2,9 +2,9 @@
 Revamping attendance &amp; security: My project modernizes tracking with Python, Django &amp; facial recognition. User-friendly interface simplifies management &amp; enhances safety in education. Prioritizing data security, scalability, &amp; comprehensive campus management.
 
 [![Atrice-video-walkthrough](https://drive.google.com/file/d/1_RoSBJalCXmdZ_1SY3fvSDx3KLJ8Z0s-/view?usp=sharing)](https://www.youtube.com/watch?v=V7q_osBDt6A)
-[![Atrice-video-walkthrough](https://drive.google.com/file/d/1_RoSBJalCXmdZ_1SY3fvSDx3KLJ8Z0s-/view?usp=sharing)](https://www.youtube.com/watch?v=V7q_osBDt6A)
+[![Atrice-video-walkthrough](https://github.com/shahilmalik/Atrice/assets/116946321/c3540498-d62e-4e85-b0d8-bfb11f8a91ed))](https://www.youtube.com/watch?v=V7q_osBDt6A)
 
-![Uploading image.png…]()
+![image](https://github.com/shahilmalik/Atrice/assets/116946321/c3540498-d62e-4e85-b0d8-bfb11f8a91ed)
 
 
 
