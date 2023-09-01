@@ -1,5 +1,6 @@
 # Atrice
 Revamping attendance &amp; security: My project modernizes tracking with Python, Django &amp; facial recognition. User-friendly interface simplifies management &amp; enhances safety in education. Prioritizing data security, scalability, &amp; comprehensive campus management.
+
 [![Watch the video](https://github.com/shahilmalik/Atrice/blob/main/static/Screenshot%202023-09-02%20at%2012.08.08%20AM.png)](https://youtu.be/watch?v=V7q_osBDt6A)
 
 
