@@ -38,7 +38,7 @@ Atrice/
 │   └── wsgi.py
 ├── pages/
 │   ├── migrations/
-│   │   ├── __init__.py
+│   │   └──  __init__.py
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
@@ -46,7 +46,7 @@ Atrice/
 │   ├── task.py <!-- install celery to schedule tasks to reset the attendance after a certain interval of time-->
 │   ├── models.py
 │   ├── models.py
-│   ├── views.py
+│   └──  views.py
 ├── media/
 │   ├── images/
 │   │   ├── student.firstname_student.secondname_registernum.jpg
