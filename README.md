@@ -1,6 +1,6 @@
 # Atrice
 Revamping attendance &amp; security: My project modernizes tracking with Python, Django &amp; facial recognition. User-friendly interface simplifies management &amp; enhances safety in education. Prioritizing data security, scalability, &amp; comprehensive campus management.
-[![Watch the video](https://i.stack.imgur.com/Vp2cE.png)](https://youtu.be/vt5fpE0bzSY)
+[![Watch the video](https://i.stack.imgur.com/Vp2cE.png)](https://youtu.be/watch?v=V7q_osBDt6A)
 
 
 Atrice is a Django-based application that performs real-time face recognition on camera feeds and marks the attendance of recognized individuals. It uses the face_recognition library for face detection and recognition.
